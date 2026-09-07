@@ -9,7 +9,7 @@ from datetime import datetime
 # Configuración de la página
 st.set_page_config(page_title="Bootcamp Automatización", page_icon="⚙️", layout="wide", initial_sidebar_state="collapsed")
 
-# --- ESTILOS CSS PERSONALIZADOS PARA DARLE "VIDA" ---
+# --- ESTILOS CSS PERSONALIZADOS PARA DARLE "VIDA" Y OCULTAR INTERFAZ ---
 st.markdown('''
 <style>
     .main-title {
@@ -33,6 +33,13 @@ st.markdown('''
         text-align: center;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
     }
+    
+    /* Ocultar menú de Streamlit, footer y botón de perfil */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    [data-testid="stHeader"] {visibility: hidden !important;}
 </style>
 ''', unsafe_allow_html=True)
 
