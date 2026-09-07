@@ -4,6 +4,7 @@ import plotly.express as px
 import streamlit.components.v1 as components
 import gspread
 from google.oauth2.service_account import Credentials
+from datetime import datetime # <--- Nueva librería para la hora
 
 # Configuración de la página
 st.set_page_config(page_title="Bootcamp Automatización", page_icon="⚙️", layout="wide", initial_sidebar_state="collapsed")
@@ -54,7 +55,6 @@ with col_intro2:
     st.metric(label="Horas de Práctica/Teoría", value="72 hrs", delta="100% Aplicativo")
 
 with col_intro3:
-    # Texto invertido para que luzca bien y no se recorte
     st.metric(label="Especialidades", value="4 Módulos", delta="Troubleshooting Real")
 
 st.divider()
@@ -119,9 +119,12 @@ with col_registro:
                 credenciales = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
                 cliente = gspread.authorize(credenciales)
                 
-                # 2. Conectar a la hoja y guardar
+                # 2. Capturar la fecha y hora actual
+                fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # 3. Conectar a la hoja y guardar (Agregamos fecha_hora al inicio de la lista)
                 hoja = cliente.open("Registros").sheet1
-                hoja.append_row([nombre, correo, procedencia, experiencia])
+                hoja.append_row([fecha_hora, nombre, correo, procedencia, experiencia])
                 
                 st.success(f"¡Registro exitoso para {nombre}! Datos guardados en la nube.")
             except Exception as e:
