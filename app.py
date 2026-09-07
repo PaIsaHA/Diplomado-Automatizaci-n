@@ -4,7 +4,7 @@ import plotly.express as px
 import streamlit.components.v1 as components
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime # <--- Nueva librería para la hora
+from datetime import datetime
 
 # Configuración de la página
 st.set_page_config(page_title="Bootcamp Automatización", page_icon="⚙️", layout="wide", initial_sidebar_state="collapsed")
@@ -40,7 +40,7 @@ st.markdown('''
 st.markdown("<h1 class='main-title'>⚙️ Bootcamp Intensivo en Automatización y Troubleshooting</h1>", unsafe_allow_html=True)
 st.markdown("<p class='sub-title'>Centro de Innovación IECA + AAM Richard E. Dauch</p>", unsafe_allow_html=True)
 
-# Layout de Introducción con columnas (Ajustado a 1.2 para que quepa el texto)
+# Layout de Introducción con columnas
 col_intro1, col_intro2, col_intro3 = st.columns([2, 1, 1.2])
 
 with col_intro1:
@@ -59,43 +59,36 @@ with col_intro3:
 
 st.divider()
 
-# Sección de Temario y Gráfica
+# Sección de Temario y Gráfica Fusionada
 st.header("📅 Cronograma y Módulos de Especialidad")
 
-# Datos extraídos de la propuesta
+# Datos sin instructores
 datos_modulos = [
-    {"Módulo": "Entorno Allen Bradley", "Inicio": "2026-09-19", "Fin": "2026-10-03", "Instructor": "AAM Alex/Externo"},
-    {"Módulo": "Entorno Siemens", "Inicio": "2026-10-10", "Fin": "2026-10-24", "Instructor": "AAM Alex/Externo"},
-    {"Módulo": "Robótica Fanuc", "Inicio": "2026-10-31", "Fin": "2026-11-14", "Instructor": "IECA - Ing. Melanie Valencia"},
-    {"Módulo": "Ecosistema Keyence", "Inicio": "2026-11-21", "Fin": "2026-12-05", "Instructor": "IECA - Ing. Melanie Valencia"}
+    {"Módulo": "Entorno Allen Bradley", "Inicio": "2026-09-19", "Fin": "2026-10-03"},
+    {"Módulo": "Entorno Siemens", "Inicio": "2026-10-10", "Fin": "2026-10-24"},
+    {"Módulo": "Robótica Fanuc", "Inicio": "2026-10-31", "Fin": "2026-11-14"},
+    {"Módulo": "Ecosistema Keyence", "Inicio": "2026-11-21", "Fin": "2026-12-05"}
 ]
 df = pd.DataFrame(datos_modulos)
+# Agregamos una columna de texto para que las fechas salgan dentro de la gráfica
+df["Fechas"] = df["Inicio"] + " al " + df["Fin"]
 
-col_tabla, col_grafica = st.columns([1, 1.2])
-
-with col_tabla:
-    st.markdown("### 📋 Detalles de Módulos")
-    st.dataframe(df, use_container_width=True, hide_index=True)
-
-with col_grafica:
-    st.markdown("### 📊 Línea de Tiempo")
-    # Gráfica de Gantt interactiva con colores vibrantes
-    fig = px.timeline(df, x_start="Inicio", x_end="Fin", y="Módulo", color="Instructor", 
-                      color_discrete_sequence=px.colors.qualitative.Set2)
-    fig.update_yaxes(autorange="reversed")
-    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", showlegend=False)
-    st.plotly_chart(fig, use_container_width=True)
+# Gráfica de Gantt interactiva a pantalla completa
+fig = px.timeline(df, x_start="Inicio", x_end="Fin", y="Módulo", text="Fechas", color="Módulo", 
+                  color_discrete_sequence=px.colors.qualitative.Set2)
+fig.update_yaxes(autorange="reversed")
+fig.update_layout(margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", showlegend=False)
+st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# Mapa y Registro en dos columnas para mejor distribución
+# Mapa y Registro en dos columnas
 col_mapa, col_registro = st.columns([1, 1], gap="large")
 
 with col_mapa:
     st.header("📍 Ubicación del Bootcamp")
     st.markdown("Encuéntranos en el **Instituto de Educación y Desarrollo Richard E. Dauch IECA - AAM**.")
     
-    # Iframe de Google Maps configurado para el enlace proporcionado
     mapa_html = '''
     <iframe src="https://maps.google.com/maps?q=Instituto%20de%20Educaci%C3%B3n%20y%20Desarrollo%20Richard%20E.%20Dauch%20IECA%20-%20AAM%2C%20Silao%2C%20Gto.&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="380" style="border:0; border-radius:15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.3);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     '''
@@ -114,15 +107,12 @@ with col_registro:
 
         if submit:
             try:
-                # 1. Configurar los accesos
                 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
                 credenciales = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scopes)
                 cliente = gspread.authorize(credenciales)
                 
-                # 2. Capturar la fecha y hora actual
                 fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
-                # 3. Conectar a la hoja y guardar (Agregamos fecha_hora al inicio de la lista)
                 hoja = cliente.open("Registros").sheet1
                 hoja.append_row([fecha_hora, nombre, correo, procedencia, experiencia])
                 
