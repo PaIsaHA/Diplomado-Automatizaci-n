@@ -34,12 +34,15 @@ st.markdown('''
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
     }
     
-    /* Ocultar menú de Streamlit, footer y botón de perfil */
+    /* Ocultar menú de Streamlit, footer, botón de deploy y badge flotante */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
     [data-testid="stToolbar"] {visibility: hidden !important;}
     [data-testid="stHeader"] {visibility: hidden !important;}
+    .stDeployButton {display: none !important;}
+    .viewerBadge_container {display: none !important;}
+    [data-testid="stStatusWidget"] {display: none !important;}
 </style>
 ''', unsafe_allow_html=True)
 
